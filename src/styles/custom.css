@@ -1,0 +1,4 @@
+/* 表格首列多为短标签（场景 / 指标 / 参数），禁止中文逐字折行，避免出现「二进 / 制」这类断词 */
+.sl-markdown-content :is(th, td):first-child {
+	word-break: keep-all;
+}

@@ -1,0 +1,69 @@
+---
+title: 首页
+description: pcdn-detector 是面向家庭网络的 PCDN 检测与阻断工具：在 OpenWrt / Linux 路由器上检测 PCDN 行为，自动封禁、拦截 UPnP，并提供 LuCI 管理面板。
+template: splash
+hero:
+  title: pcdn-detector
+  tagline: 面向家庭网络的 PCDN 检测与阻断工具
+  actions:
+    - text: 快速开始
+      link: /start/quickstart/
+      icon: rocket
+      variant: primary
+    - text: 项目概览
+      link: /start/overview/
+      icon: open-book
+      variant: minimal
+---
+
+import { Card, CardGrid } from '@astrojs/starlight/components';
+
+## 组成
+
+<CardGrid>
+	<Card title="pcdn-detector" icon="laptop">
+		Go 实现的检测内核。纯 Go / 无 CGO，交叉编译出静态二进制，适合绝大多数路由器。
+	</Card>
+	<Card title="pcdn-detector-c" icon="setting">
+		C 语言移植版。pthread + AF_PACKET，无 GC，配置、命令行与 API 均与 Go 版对齐。
+	</Card>
+	<Card title="luci-app-pcdn-detector" icon="puzzle">
+		LuCI 面板。只做界面与运维，实际检测由上面两个二进制完成。
+	</Card>
+	<Card title="文档参考" icon="open-book">
+		命令行参数、完整配置模板与常见问题，以及 Go / C 实现专区的内部细节。
+	</Card>
+</CardGrid>
+
+## 它能解决什么问题
+
+当某台设备在指定时长内、通过**同一个本地端口**连接了**大量不同的远端公网 IP**，就是 PCDN
+节点的典型特征。pcdn-detector 在 LAN 侧网桥上抓包，按「设备 MAC + 本地端口 + 协议」统计窗口内的
+对端数量，超过阈值即告警，并可自动：
+
+- **封禁**该设备在该端口上的流量，行为结束时解封；
+- 在多端口被封后**封禁该设备全部 UDP 端口**（放行 DNS / NTP / DHCP 等）；
+- **拦截 UPnP** 请求，阻止设备自行打洞开端口；
+- 通过 **HTTP API** 与 **LuCI 面板**查看状态、解封、热重载配置。
+
+## 适用范围
+
+建议用于**家庭 / 小型网络环境**：一台路由器、几台到几十台设备。判定只看「同一端口上出现大量
+不同远端 IP」这一条统计特征，无法区分 PCDN 与其它 P2P 流量，因此**会误杀正常的 P2P 软件**：
+
+- **BT / PT 下载**：热门种子同样会在单端口连出大量对端，是最常见的误判来源；
+- **P2P 联机**：部分游戏、联机平台与加速器在节点发现阶段也会产生大量对端；
+- 其它高并发端点的应用，如某些分布式存储客户端、监控回传。
+
+启用自动封禁前，建议先只开日志观察一两天，用[黑白名单](/config/filter/)排除已知会跑 P2P 的设备，
+或按实测结果把阈值调高。大规模 / 企业网络不要直接套用默认阈值。
+
+## 从这里开始
+
+- 还不了解整体结构：[项目概览](/start/overview/)、[架构与仓库关系](/start/architecture/)
+- 想尽快跑起来：[快速开始](/start/quickstart/)
+- 不确定下载哪个二进制：[选择后端实现](/deploy/choose/)
+- 查具体配置项：[配置总览](/config/overview/)、[完整配置模板](/reference/config-template/)
+- 想读实现细节：[Go 版专区](/go/overview/)、[C 版专区](/c/overview/)
+- 想参与开发：[开发专区](/dev/overview/)
+- 遇到问题：[常见问题](/reference/faq/)
